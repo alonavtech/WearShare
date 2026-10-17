@@ -22,7 +22,14 @@ class Settings(BaseSettings):
 
     @property
     def db_url(self) -> str:
-        return self.database_url or "sqlite:///./wearshare.db"
+        url = self.database_url.strip()
+        if not url:
+            return "sqlite:///./wearshare.db"
+        # Tiger Data gives "postgresql://..."; SQLAlchemy must be told to use the psycopg v3 driver.
+        for prefix in ("postgresql://", "postgres://"):
+            if url.startswith(prefix):
+                return "postgresql+psycopg://" + url[len(prefix):]
+        return url
 
     @property
     def dev_auth(self) -> bool:
