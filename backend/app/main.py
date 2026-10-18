@@ -1,5 +1,8 @@
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 
 from .config import get_settings
@@ -47,3 +50,10 @@ def startup() -> None:
 def health():
     return {"ok": True, "ai": bool(settings.groq_api_key), "auth": "dev" if settings.dev_auth else "auth0",
             "db": "sqlite" if is_sqlite else "postgres"}
+
+
+app.mount(
+    "/",
+    StaticFiles(directory=Path(__file__).resolve().parents[2] / "wearshare-frontend", html=True),
+    name="frontend",
+)

@@ -168,12 +168,13 @@ Users can agree whether the borrower should wash an item before returning it or 
 | Layer | Technology | Role |
 |---|---|---|
 | Product and UI design | Figma | Plan and design the user experience |
-| Frontend | React, HTML, CSS, JavaScript | Build the interactive web application |
+| Frontend | HTML, CSS, vanilla JavaScript | Build the interactive web application |
 | Backend | Python, FastAPI | Implement server-side logic and REST endpoints |
 | AI | Groq API | Generate AI-assisted clothing descriptions using the configured model |
 | Authentication | Auth0 | Sign-in and identity management |
 | Database | Tiger Data / Tiger Cloud PostgreSQL | Store relational application data |
-| Hosting | Vultr | Host the application backend or other deployed services |
+| Hosting | Vercel | Serve the frontend and run FastAPI as serverless functions |
+| Image storage | Private Vercel Blob | Persist and securely serve user-uploaded photos |
 | API communication | HTTP / REST | Connect frontend and backend |
 | Version control | Git and GitHub | Track and collaborate on code |
 
@@ -183,7 +184,7 @@ The exact deployment configuration, model name, image storage provider, and envi
 
 ```text
                    WearShare Web App
-                  React + HTML/CSS/JS
+                    HTML/CSS/JS
                            |
                            | REST requests
                            v
@@ -200,15 +201,17 @@ The exact deployment configuration, model name, image storage provider, and envi
                          sharing, requests,
                          reservations, DMs
 
-                   Vultr: application hosting
+                   Vercel: frontend + FastAPI hosting
+                   Vercel Blob: private user photos
 ```
 
-- **React frontend:** Renders profiles, closets, search, groups, calendars, requests, and messages.
+- **JavaScript frontend:** Renders profiles, closets, search, groups, calendars, requests, and messages.
 - **FastAPI backend:** Exposes endpoints, validates input, checks permissions, and enforces borrowing rules.
 - **Groq API:** Supplies AI-generated descriptions through a backend integration. The selected model must support the inputs the application sends.
 - **Auth0:** Verifies user identity. The backend must still authorize access to each private resource.
 - **Tiger Data:** Stores structured records such as users, items, friendships, group membership, requests, and messages.
-- **Vultr:** Provides cloud infrastructure for deploying the application services.
+- **Vercel:** Serves the frontend and runs the FastAPI application.
+- **Vercel Blob:** Stores private user-uploaded photos durably outside the function filesystem.
 
 Images may be stored in an object-storage service rather than directly in PostgreSQL. If image storage is configured separately, the database should keep the image reference and metadata while access controls protect the actual file.
 
@@ -219,12 +222,11 @@ These instructions are a starting point. Use the actual file names, scripts, and
 ### Prerequisites
 
 - Python 3.11+
-- Node.js and npm
 - Git
-- A Groq API key
-- Auth0 application credentials for production-style sign-in
-- Tiger Data connection details for the hosted PostgreSQL database
-- A Vultr account if deploying to Vultr
+- A Vercel account to deploy
+- Tiger Data PostgreSQL connection details and a private Vercel Blob store for production
+- Auth0 application credentials for production sign-in
+- A Groq API key for AI-generated descriptions (optional)
 
 ### 1. Clone the repository
 
@@ -305,14 +307,14 @@ If your app uses a different module path, adjust the command accordingly. Once t
 
 ### 5. Start the frontend
 
-From the frontend directory, install packages and start the development server using the scripts in `package.json`. For a typical React/Vite project:
+In a second terminal from the repository root, serve the static frontend from `wearshare-frontend` using VS Code Live Server or:
 
 ```bash
-npm install
-npm run dev
+cd wearshare-frontend
+python -m http.server 5500
 ```
 
-Open the local URL printed by the development server. Configure the frontend's API base URL to point to the local FastAPI server.
+Open `http://localhost:5500`. The frontend points to the local FastAPI server on port 8000.
 
 ### 6. Configure Auth0
 
@@ -328,38 +330,41 @@ Frontend configuration may include public Auth0 domain, client ID, and audience 
 
 Create or select a PostgreSQL database in Tiger Data/Tiger Cloud, then use its supplied connection string in the backend configuration. Ensure the PostgreSQL driver, schema, migrations, and connection settings are compatible with the project.
 
-For local development, a local database may be supported if the code has been configured for one. Do not assume SQLite fallback exists unless it is implemented in the repository.
+For local development, leave `DATABASE_URL` empty to use SQLite. Production must use hosted PostgreSQL; SQLite files are not persistent across Vercel function invocations.
 
-### 8. Deploy with Vultr
+### 8. Deploy with Vercel
 
-A typical deployment plan is:
+The repository is configured as one Vercel project: Vercel serves the static frontend and runs FastAPI as serverless functions. A hosted PostgreSQL database and private Blob store are required for durable production data and photos.
 
-1. Provision a Vultr server or supported hosting environment.
-2. Install the required Python runtime and application dependencies.
-3. Configure environment variables securely on the server.
-4. Run FastAPI behind a production ASGI server and HTTPS reverse proxy.
-5. Configure the frontend's production API URL and deploy the built frontend.
-6. Restrict database access and configure Auth0 allowed URLs for the production domain.
-7. Test sign-in, uploads, item visibility, AI descriptions, and concurrent reservation requests in the deployed environment.
+1. Push the project to GitHub, then import the repository into Vercel. Use the repository root as the project root.
+2. In Vercel **Storage**, create a **private** Blob store and connect it to the project for Production (and Preview/Development if needed). Vercel supplies Blob access to the Python SDK.
+3. Add the production environment variables listed below in **Project Settings → Environment Variables**. Do not commit actual credentials.
+4. In Auth0, add the deployed `https://<your-project>.vercel.app` origin to the SPA's allowed callback, logout, and web-origin URLs. Add any custom domain after connecting it.
+5. Deploy from Vercel or push to the connected GitHub branch. Check `https://<your-project>.vercel.app/api/health`, then test sign-in, profile creation, private image upload/display, groups, borrowing, and DMs.
 
-Deployment commands depend on the Vultr product and the repository's hosting setup. Do not expose the development server directly as a production deployment.
+The first production request initializes the database schema. Vercel deployments are immutable, so the app uses private Vercel Blob rather than local disk for uploaded photos. Existing local SQLite data and local uploads are not automatically migrated.
 
 ## Environment Variables
 
-Variable names below are illustrative. Confirm the exact names used by the code before running the application.
+Set these in Vercel. `BLOB_STORE_ID` and the Vercel OIDC token are supplied automatically when the private Blob store is connected to the project. For local development, keep `IMAGE_STORAGE=local`.
 
 | Variable | Purpose |
 |---|---|
-| `GROQ_API_KEY` | Backend access to the Groq API |
-| `AUTH0_DOMAIN` | Auth0 tenant/domain |
-| `AUTH0_AUDIENCE` | Identifier for the protected backend API |
+| `APP_ENV` | Set to `production`; enables production safety checks |
+| `IMAGE_STORAGE` | Set to `vercel_blob` for durable private photo storage |
 | `DATABASE_URL` | Tiger Data PostgreSQL connection string |
-| `VITE_API_URL` | Frontend API base URL, if using Vite |
-| `VITE_AUTH0_DOMAIN` | Public Auth0 domain configuration, if using Vite |
-| `VITE_AUTH0_CLIENT_ID` | Public Auth0 application client ID, if using Vite |
-| `VITE_AUTH0_AUDIENCE` | Public API audience configuration, if using Vite |
+| `SECRET_KEY` | Random secret of at least 24 characters for signed private-image URLs |
+| `AUTH0_DOMAIN` | Auth0 tenant/domain |
+| `AUTH0_AUDIENCE` | Identifier for the protected API |
+| `CORS_ORIGINS` | Comma-separated deployed frontend origins; use the Vercel production URL |
+| `GROQ_API_KEY` | Optional backend key for AI-generated clothing descriptions |
+| `APP_TIMEZONE` | Optional app timezone; defaults to `America/New_York` |
 
-Only add variables that your code actually reads. Keep secrets on the backend and use your deployment platform's secure environment configuration for production.
+Do not add database, Blob, or Groq secrets to frontend files. Auth0's SPA client ID in `config.js` is public; its allowed URLs and API audience must match the deployed app.
+
+## Progressive Web App
+
+WearShare includes a web app manifest, app icons, a service worker, and an install button where the browser supports installation. On iPhone/iPad, open the site in Safari, tap **Share → Add to Home Screen**. On Android, use the browser's **Install app** or **Add to Home screen** prompt. The service worker caches the application shell only; sign-in, photos, and app data still require a network connection.
 
 ## Core API Areas
 
@@ -448,16 +453,15 @@ Before presenting or deploying, verify:
 
 WearShare aims to help clothing stay in use for longer by making borrowing within existing communities easier.
 
-We plan to track:
+Use observed, date-stamped product data for resume metrics—do not report targets or survey interest as real user impact. The authenticated `/api/impact` endpoint exposes aggregate counts for:
 
 - Items uploaded
 - Active users and sharing groups
 - Borrowing requests submitted and approved
-- Completed exchanges and repeat borrowing
-- Return completion and overdue rates, if implemented
-- Users who report that borrowing helped them avoid a purchase
+- Completed exchanges
+- Daily activity-event counts for the most recent 14 days (when Tiger Data event storage is available)
 
-We will separate observed platform activity from self-reported behavior. We will not claim a precise amount of textile waste or emissions avoided without a transparent, defensible calculation method.
+For a resume, report the measurement period and define rates consistently—for example, **request approval rate = approved requests / submitted requests**, **exchange completion rate = returned requests / approved requests**, and **repeat-borrower rate = borrowers with 2+ requests / borrowers with 1+ requests**. Measure reported purchases avoided with an optional user survey and label it self-reported. Do not convert borrowing counts into kilograms of waste or emissions without a transparent, defensible method.
 
 ## Roadmap
 

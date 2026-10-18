@@ -6,6 +6,7 @@ python-dotenv>=1.0
 python-multipart>=0.0.9
 groq>=0.30
 pydantic-settings>=2.4
+vercel-blob>=0.5.0
 PyJWT[crypto]>=2.9
 cryptography>=43
 # testing

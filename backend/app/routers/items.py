@@ -1,7 +1,8 @@
+import re
 from datetime import date
 
 from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
-from fastapi.responses import FileResponse
+from fastapi.responses import Response
 from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -14,7 +15,7 @@ from ..models import BorrowRequest, Item, ItemShare, User
 from ..permissions import can_see_item, is_member, visible_items
 from ..schemas import AvailabilityOut, ItemIn, ItemOut, ItemPatch, UploadOut
 from ..serializers import item_out
-from ..storage import check_signature, image_path, save_image, signed_url, sniff_image_type
+from ..storage import check_signature, image_path, load_image, save_image, signed_url, sniff_image_type
 from ..timeutil import earliest_start
 
 router = APIRouter(prefix="/api", tags=["items"])
@@ -48,7 +49,13 @@ def _get_owned(db: Session, item_id: int, me: User) -> Item:
 
 
 def _check_photo_key(key: str | None, me: User) -> None:
-    if key and (not key.startswith(f"{me.id}/") or not image_path(key)):
+    if not key:
+        return
+    if settings.image_storage == "vercel_blob":
+        valid = re.fullmatch(rf"{me.id}/[0-9a-f]{{32}}\.(jpg|png|webp)", key) is not None
+    else:
+        valid = key.startswith(f"{me.id}/") and image_path(key) is not None
+    if not valid:
         raise HTTPException(400, "That photo wasn't uploaded by you.")
 
 
@@ -67,19 +74,23 @@ def _set_groups(db: Session, item: Item, group_ids: list[int], me: User) -> None
 @router.post("/uploads", response_model=UploadOut, status_code=201)
 async def upload_photo(file: UploadFile = File(...), me: User = Depends(get_current_user)):
     data, mime = await read_image(file)
-    key = save_image(me.id, data, mime)
+    key = await save_image(me.id, data, mime)
     return UploadOut(photo_key=key, photo_url=signed_url(key))
 
 
 @router.get("/images/{key:path}")
-def get_image(key: str, exp: int = Query(...), sig: str = Query(...)):
+async def get_image(key: str, exp: int = Query(...), sig: str = Query(...)):
     # Signed URLs let <img> tags load private photos without sending auth headers.
     if not check_signature(key, exp, sig):
         raise HTTPException(403, "This image link has expired.")
-    path = image_path(key)
-    if not path:
+    image = await load_image(key)
+    if not image:
         raise HTTPException(404, "Image not found.")
-    return FileResponse(path, headers={"Cache-Control": "private, max-age=3600"})
+    data, mime = image
+    return Response(data, media_type=mime, headers={
+        "Cache-Control": "private, max-age=3600",
+        "X-Content-Type-Options": "nosniff",
+    })
 
 
 @router.post("/items", response_model=ItemOut, status_code=201)
