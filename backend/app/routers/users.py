@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
@@ -7,6 +7,8 @@ from ..db import get_db
 from ..models import Friendship, User
 from ..permissions import friend_ids
 from ..schemas import DecisionIn, FriendRequestIn, PersonOut, UserOut, UserUpdate
+from ..storage import save_image
+from .items import read_image
 
 router = APIRouter(prefix="/api", tags=["users & friends"])
 
@@ -41,6 +43,15 @@ def update_me(body: UserUpdate, me: User = Depends(get_current_user), db: Sessio
             raise HTTPException(409, "That username is taken.")
     for k, v in data.items():
         setattr(me, k, v)
+    db.commit()
+    return me
+
+
+@router.post("/users/me/avatar", response_model=UserOut)
+async def upload_avatar(file: UploadFile = File(...), me: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Profile photo: same checks as clothing photos (real image bytes, size limit), stored privately."""
+    data, mime = await read_image(file)
+    me.avatar_url = save_image(me.id, data, mime)
     db.commit()
     return me
 

@@ -6,6 +6,7 @@ from pydantic import ValidationError
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from .. import events
 from ..auth import get_current_user
 from ..config import get_settings
 from ..db import get_db
@@ -90,6 +91,7 @@ def create_item(body: ItemIn, me: User = Depends(get_current_user), db: Session 
     db.flush()
     _set_groups(db, item, body.group_ids, me)
     db.commit()
+    events.record("item_listed", me.id, item.id)
     return item_out(db, item, me.id)
 
 

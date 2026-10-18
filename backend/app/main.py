@@ -4,6 +4,7 @@ from sqlalchemy import text
 
 from .config import get_settings
 from .db import Base, engine, is_sqlite
+from . import events
 from .routers import ai, bootstrap, borrow, groups, items, messages, users
 
 settings = get_settings()
@@ -22,6 +23,7 @@ for r in (users.router, items.router, ai.router, groups.router, borrow.router, m
 
 @app.on_event("startup")
 def startup() -> None:
+    settings.validate_production()
     Base.metadata.create_all(engine)
     if not is_sqlite:
         # Database-level guarantee: approved bookings for the same item can never overlap.
@@ -38,6 +40,7 @@ def startup() -> None:
         except Exception as exc:
             print(f"WARNING: could not add the no-overlap constraint ({exc}). "
                   "The approval row-lock and overlap check in the code still protect bookings.")
+    events.setup_events()
 
 
 @app.get("/api/health")

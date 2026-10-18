@@ -55,3 +55,12 @@ def signed_url(key: str | None, ttl: int = 3600) -> str | None:
 
 def check_signature(key: str, exp: int, sig: str) -> bool:
     return exp >= time.time() and hmac.compare_digest(_sig(key, exp), sig)
+
+
+def avatar_link(value: str | None) -> str | None:
+    """Profile photos are stored as private image keys. Real URLs and ready-made links pass through."""
+    if not value:
+        return None
+    if value.startswith(("http://", "https://", "/")):
+        return value
+    return signed_url(value)

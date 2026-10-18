@@ -1,14 +1,31 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import or_, select
+from sqlalchemy import and_, or_, select
 from sqlalchemy.orm import Session
 
 from ..auth import get_current_user
 from ..db import get_db
-from ..models import Conversation, Message, User
+from ..models import BorrowRequest, Conversation, GroupMember, Message, User
+from ..permissions import approved_group_ids, are_friends
 from ..schemas import ConversationOut, MessageIn, MessageOut, UserOut
 from ..services import get_or_create_conversation
 
 router = APIRouter(prefix="/api/conversations", tags=["messages"])
+
+
+NOT_CONNECTED = "You can message friends, people in your groups, or people you've borrowed from or lent to."
+
+
+def _can_message(db: Session, me_id: int, other_id: int) -> bool:
+    """Stops strangers from messaging anyone: you need a real connection first."""
+    if are_friends(db, me_id, other_id):
+        return True
+    mine = approved_group_ids(db, me_id)
+    if mine and db.scalar(select(GroupMember.id).where(
+            GroupMember.user_id == other_id, GroupMember.status == "approved", GroupMember.group_id.in_(mine)).limit(1)):
+        return True
+    return bool(db.scalar(select(BorrowRequest.id).where(or_(
+        and_(BorrowRequest.borrower_id == me_id, BorrowRequest.owner_id == other_id),
+        and_(BorrowRequest.borrower_id == other_id, BorrowRequest.owner_id == me_id))).limit(1)))
 
 
 def _conv_out(db: Session, c: Conversation, me: User) -> ConversationOut:
@@ -36,6 +53,8 @@ def open_conversation(username: str, me: User = Depends(get_current_user), db: S
     other = db.scalar(select(User).where(User.username == username))
     if not other or other.id == me.id:
         raise HTTPException(404, "User not found.")
+    if not _can_message(db, me.id, other.id):
+        raise HTTPException(403, NOT_CONNECTED)
     c = get_or_create_conversation(db, me.id, other.id)
     db.commit()
     return _conv_out(db, c, me)
@@ -49,7 +68,10 @@ def get_messages(cid: int, me: User = Depends(get_current_user), db: Session = D
 
 @router.post("/{cid}/messages", response_model=MessageOut, status_code=201)
 def send_message(cid: int, body: MessageIn, me: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    _mine(db, cid, me)
+    c = _mine(db, cid, me)
+    other_id = c.user_b_id if c.user_a_id == me.id else c.user_a_id
+    if not _can_message(db, me.id, other_id):
+        raise HTTPException(403, NOT_CONNECTED)
     m = Message(conversation_id=cid, sender_id=me.id, body=body.body.strip())
     db.add(m)
     db.commit()

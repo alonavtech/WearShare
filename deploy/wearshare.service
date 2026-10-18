@@ -1,0 +1,19 @@
+[Unit]
+Description=WearShare API (FastAPI + uvicorn)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=wearshare
+Group=wearshare
+WorkingDirectory=/opt/wearshare/backend
+Environment=PYTHONDONTWRITEBYTECODE=1
+# Listens on localhost only. Caddy is the only thing exposed to the internet.
+ExecStart=/opt/wearshare/backend/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --proxy-headers
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,14 +1,18 @@
 """One call that returns everything the signed-in user's screens need."""
+from datetime import timedelta
+
 from fastapi import APIRouter, Depends
-from sqlalchemy import func, or_, select
+from sqlalchemy import func, or_, select, text
 from sqlalchemy.orm import Session
 
 from ..auth import get_current_user
-from ..db import get_db
+from ..db import get_db, is_sqlite
 from ..models import (BorrowRequest, Conversation, Friendship, Group, GroupMember, Item, ItemShare,
                       Message, User)
 from ..permissions import friend_ids, is_member, visible_items
 from ..serializers import display_status, item_out
+from ..storage import avatar_link
+from ..timeutil import today
 
 router = APIRouter(prefix="/api", tags=["bootstrap"])
 
@@ -82,7 +86,7 @@ def bootstrap(me: User = Depends(get_current_user), db: Session = Depends(get_db
     users = []
     for u in db.scalars(select(User).where(User.id.in_(user_ids))):
         users.append({
-            "id": u.id, "username": u.username, "display_name": u.display_name, "avatar_url": u.avatar_url,
+            "id": u.id, "username": u.username, "display_name": u.display_name, "avatar_url": avatar_link(u.avatar_url),
             "item_count": db.scalar(select(func.count(Item.id)).where(Item.owner_id == u.id, Item.status == "active")) or 0,
             "friend_count": len(friend_ids(db, u.id)),
             "group_count": db.scalar(select(func.count(GroupMember.id)).where(GroupMember.user_id == u.id, GroupMember.status == "approved")) or 0,
@@ -91,3 +95,53 @@ def bootstrap(me: User = Depends(get_current_user), db: Session = Depends(get_db
     return {"me": {"id": me.id, "username": me.username, "display_name": me.display_name},
             "users": users, "friendships": friendships, "groups": groups, "items": items,
             "requests": requests, "conversations": convs}
+
+
+@router.get("/activity")
+def activity(me: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """In-app notifications computed from live request data, so they can never go stale."""
+    t = today()
+    soon = t + timedelta(days=2)
+    rows = db.scalars(select(BorrowRequest).where(
+        or_(BorrowRequest.owner_id == me.id, BorrowRequest.borrower_id == me.id),
+        BorrowRequest.status.in_(["pending", "approved"])).order_by(BorrowRequest.start_date)).all()
+    out = []
+    for r in rows:
+        item = db.get(Item, r.item_id)
+        other = db.get(User, r.borrower_id if r.owner_id == me.id else r.owner_id)
+        base = {"request_id": r.id, "item_id": r.item_id, "item_title": item.title, "with": other.username,
+                "start": r.start_date.isoformat(), "end": r.end_date.isoformat()}
+        if r.status == "pending" and r.owner_id == me.id:
+            out.append({"kind": "request_received", **base})
+        elif r.status == "approved" and r.end_date < t:
+            out.append({"kind": "overdue", "role": "borrower" if r.borrower_id == me.id else "owner", **base})
+        elif r.status == "approved" and r.borrower_id == me.id and t <= r.end_date <= soon:
+            out.append({"kind": "return_due", **base})
+    return {"count": len(out), "items": out}
+
+
+@router.get("/impact")
+def impact(me: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Platform-wide activity counts (README: Impact Measurement). Counts only, no personal data."""
+    def count(stmt):
+        return db.scalar(stmt) or 0
+
+    totals = {
+        "members": count(select(func.count(User.id))),
+        "groups": count(select(func.count(Group.id))),
+        "items_listed": count(select(func.count(Item.id)).where(Item.status == "active")),
+        "requests_submitted": count(select(func.count(BorrowRequest.id))),
+        "requests_approved": count(select(func.count(BorrowRequest.id)).where(BorrowRequest.status.in_(["approved", "returned"]))),
+        "exchanges_completed": count(select(func.count(BorrowRequest.id)).where(BorrowRequest.status == "returned")),
+    }
+    daily = []
+    if not is_sqlite:
+        try:  # time_bucket() is a Tiger Data / TimescaleDB function
+            rows = db.execute(text("""
+                SELECT time_bucket('1 day', created_at) AS day, kind, count(*) AS n
+                FROM activity_events WHERE created_at > now() - interval '14 days'
+                GROUP BY day, kind ORDER BY day""")).all()
+            daily = [{"day": d.date().isoformat(), "kind": k, "count": n} for d, k, n in rows]
+        except Exception:
+            db.rollback()
+    return {"totals": totals, "daily": daily, "source": "local" if is_sqlite else "tiger-data"}

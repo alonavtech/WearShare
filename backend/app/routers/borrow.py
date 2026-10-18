@@ -5,6 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from .. import events
 from ..auth import get_current_user
 from ..db import get_db
 from ..models import BorrowRequest, Item, User
@@ -51,6 +52,7 @@ def create_request(body: BorrowIn, me: User = Depends(get_current_user), db: Ses
     db.add(r)
     db.commit()
     db.refresh(r)
+    events.record("request_submitted", me.id, item.id)
     return borrow_out(db, r, me.id)
 
 
@@ -98,6 +100,7 @@ def decide(req_id: int, body: DecisionIn, me: User = Depends(get_current_user), 
     except IntegrityError:  # the Postgres exclusion constraint caught a race
         db.rollback()
         raise HTTPException(409, "Those dates are no longer available.")
+    events.record("request_approved", me.id, item.id)
     return borrow_out(db, r, me.id)
 
 
@@ -127,4 +130,5 @@ def mark_returned(req_id: int, me: User = Depends(get_current_user), db: Session
     r.status = "returned"
     system_message(db, r.owner_id, r.borrower_id, f"{db.get(Item, r.item_id).title} was marked as returned. Thanks!")
     db.commit()
+    events.record("exchange_returned", me.id, r.item_id)
     return borrow_out(db, r, me.id)

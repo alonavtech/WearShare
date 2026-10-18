@@ -19,6 +19,21 @@ class Settings(BaseSettings):
     app_timezone: str = "America/New_York"
     upload_dir: str = "uploads"
     max_upload_mb: int = 8
+    app_env: str = "development"  # set to "production" on the Vultr server
+
+    def validate_production(self) -> None:
+        """Refuse to start in production with unsafe settings (e.g. dev login left on)."""
+        if self.app_env.lower() != "production":
+            return
+        problems = []
+        if self.dev_auth:
+            problems.append("AUTH0_DOMAIN and AUTH0_AUDIENCE must be set (dev login is not allowed in production)")
+        if self.secret_key.startswith(("dev-secret", "change-me")) or len(self.secret_key) < 24:
+            problems.append("SECRET_KEY must be a long random string")
+        if not self.database_url:
+            problems.append("DATABASE_URL must point to Tiger Data")
+        if problems:
+            raise RuntimeError("Unsafe production configuration: " + "; ".join(problems))
 
     @property
     def db_url(self) -> str:

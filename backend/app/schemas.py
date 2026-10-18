@@ -3,6 +3,8 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
+from .storage import avatar_link
+
 ITEM_TYPES = ["Dress", "Top", "Sweater", "Jacket", "Pants", "Skirt", "Shoes", "Bag"]
 STYLES = ["Casual", "Going out", "Formal", "Business", "Cozy", "Sporty", "Streetwear", "Vintage", "Boho", "Edgy"]
 COLORS = ["Black", "White", "Cream", "Beige", "Brown", "Red", "Pink", "Orange", "Yellow", "Green",
@@ -18,11 +20,15 @@ class UserOut(BaseModel):
     school: str | None = None
     model_config = {"from_attributes": True}
 
+    @field_validator("avatar_url")
+    @classmethod
+    def _signed_avatar(cls, v):
+        return avatar_link(v)  # stored as a private image key; shown as a short-lived signed link
+
 
 class UserUpdate(BaseModel):
     username: str | None = Field(default=None, min_length=3, max_length=30, pattern=r"^[a-z0-9._]+$")
     display_name: str | None = Field(default=None, min_length=1, max_length=80)
-    avatar_url: str | None = Field(default=None, max_length=500)
     school: str | None = Field(default=None, max_length=120)
 
 

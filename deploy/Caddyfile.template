@@ -1,0 +1,19 @@
+__DOMAIN__ {
+	encode gzip zstd
+
+	# API, interactive docs and the OpenAPI file go to FastAPI.
+	@backend path /api/* /docs /docs/* /redoc /openapi.json
+	handle @backend {
+		request_body {
+			max_size 12MB
+		}
+		reverse_proxy 127.0.0.1:8000
+	}
+
+	# Everything else is the built React app. Unknown paths fall back to index.html (React router).
+	handle {
+		root * __WEB_DIR__
+		try_files {path} /index.html
+		file_server
+	}
+}
