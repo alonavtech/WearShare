@@ -1,17 +1,15 @@
 # WearShare
 
-**Your friends' closets, one shared space.**
+WearShare is an AI-powered clothing-sharing social media platform designed for close-knit college communities. Starting at the University of Florida, it helps roommates, dorm friends, sororities, and close friend groups discover each other's wardrobes, request clothing items for specific dates, and coordinate borrowing in one place.
 
-WearShare is an AI-powered clothing-sharing social platform built for trusted college communities. Starting at the University of Florida, it helps roommates, dorm friends, sororities, and close friend groups discover clothing their friends already own, request items for specific dates, and coordinate exchanges in one place.
+Instead of buying a whole new outfit for one event, find it in a friend's closet!
 
-Instead of buying an outfit for one event, find it in a friend's closet.
-
-> **Our mission:** Make borrowing as convenient as buying, help students save money, strengthen real-life connections, and keep clothing in use for longer.
+> **Our mission:** Make borrowing as convenient as online shopping, help students save money, strengthen real-life connections, and keep clothing in use for longer.
 
 ---
 
 ## Contents
-
+ 
 - [The Problem](#the-problem)
 - [Our Solution](#our-solution)
 - [Research and Validation](#research-and-validation)
@@ -31,39 +29,39 @@ Instead of buying an outfit for one event, find it in a friend's closet.
 
 ## The Problem
 
-Borrowing clothes from friends is already common, but the process is scattered across texts and group chats. It can be difficult to find who owns a particular item, compare options, check availability, agree on dates, and remember to return what was borrowed. Buying something new can feel easier, even when a friend nearby already owns a similar item.
+Borrowing clothes from friends is already familiar, but the process is scattered across various direct messages and group chats. It can be difficult to find who owns a particular item, compare options, check availability, agree on dates, and remember to return what was borrowed. Buying something new can feel more convenient, even when a friend nearby already owns a similar item.
 
-This convenience gap contributes to unnecessary purchases and leaves wearable clothing unused.
+This contributes to unnecessary purchases and leaves wearable clothing unused, contributing to the growing issue of textile waste across the world.
 
-The United Nations Environment Programme reports that approximately **92 million tonnes of textile waste** are generated globally each year. It also reports that clothing production doubled between 2000 and 2015 while the duration of garment use decreased by 36%.
+In fact, The United Nations Environment Programme reports that approximately **92 million tonnes of textile waste** are generated globally each year. It also reports that clothing production doubled between 2000 and 2015 while the duration of garment use decreased by 36%.
 
 **Source:** [United Nations Environment Programme — Unsustainable Fashion and Textiles](https://www.unep.org/en/news-and-stories/press-release/unsustainable-fashion-and-textiles-focus-international-day-zero)
 
 ## Our Solution
 
-WearShare makes clothing borrowing organized, searchable, and social. Users create digital closets, share selected items with trusted friends and groups, discover clothing through filters, request items for specific dates, and coordinate exchanges through direct messages.
+WearShare makes clothing borrowing organized, searchable, and social. Users create digital closets, share selected items with trusted friends, discover clothing through filters, request items for specific dates, and coordinate exchanges through direct messages.
 
-WearShare is different from a resale marketplace: the focus is on **temporary borrowing between people who already know or trust each other**, not buying and selling.
+WearShare is different from a second-hand online marketplace as the focus is on **temporary borrowing between people who already know or trust each other**, rather than buying and selling.
 
 ### Why WearShare?
 
-- **Convenience:** Search multiple friends' closets in one place instead of sending messages to several people.
-- **Affordability:** Borrow an outfit for a specific occasion rather than purchasing something you may rarely wear.
-- **Trust:** Share with approved friends and private groups rather than opening a public marketplace.
-- **Reuse:** Help more people get use out of clothing that already exists.
-- **Social connection:** Turn a familiar activity into an easier way to connect with friends in real life.
+- **Convenience:** Search multiple friends' closets in one place instead of messaging friend after friend to see who has what you need.
+- **Affordability:** Avoid the expense of purchasing an outfit you'll only wear for a specific event.
+- **Trust:** Clothing sourced from approved friends and private groups.
+- **Reuse:** Help people get longer use out of clothing that already exists.
+- **Social connection:** Turn the familiar activity of borrowing into an easier way to connect with friends in real life.
 
 ## Research and Validation
 
-Our initial Google Form received **50 responses**, and **99% of respondents said they would find the concept useful**. This is an encouraging early signal from our network, not proof of long-term adoption. The next step is to measure whether people upload items, borrow successfully, and return to use WearShare.
+Our initial Google Form received **50 responses**, and **99% of respondents said they would find the concept useful**. This is an encouraging early interest, however, not proof of long-term adoption and use. The next step is to measure whether people can effectively and easily upload items, borrow successfully, and return to use WearShare.
 
 Our research also informs the product's design:
 
 - **Textile waste:** UNEP estimates that 92 million tonnes of textile waste are generated globally each year.
-- **Borrowing behavior:** Research on borrowing and sharing suggests that people already turn to friends and family to borrow items. WearShare aims to reduce the coordination effort.
-- **Trust and hygiene:** Concerns about cleanliness and the uncertainty of used products can make people reluctant to use circular fashion services. WearShare focuses on trusted communities and lets borrowers and owners discuss washing expectations.
-- **Enjoyment and discovery:** A social, searchable closet can make finding an outfit feel more engaging than treating sustainable choices as a chore.
-- **Student budgets:** College students often need different outfits for formals, parties, interviews, game days, and themed events while managing limited budgets.
+- **Borrowing behavior:** Research on borrowing and sharing suggests that many people already turn to friends and family to borrow items. WearShare aims to reduce the effort it takes to coordinate such.
+- **Trust and hygiene:** Concerns about cleanliness and the uncertainty of use products can make people reluctant to buy second-hand or use circular fashion services. WearShare focuses on ensuring the user is within trusted communities and lets borrowers and owners discuss washing expectations.
+- **Enjoyment and discovery:** A social, searchable closet can make finding an outfit feel more engaging, almost like a treasure hunt, rather than a chore.
+- **Student budgets:** College students often need different outfits for formals, parties, interviews, game days, and themed events while managing limited funds.
 
 ### Research sources
 
@@ -79,14 +77,14 @@ We distinguish published research from our own survey and from future impact goa
 ### 1. Profiles and authentication
 
 - Create a profile with a display name, username, and profile photo.
-- Sign in using Auth0.
-- Search for users and send or respond to friend requests.
+- Sign in securely using Auth0.
+- Search for users and send or accept to friend requests.
 - View friends' closets when permission is granted.
 
 ### 2. AI-assisted digital closets
 
 - Upload a photo for each clothing item.
-- Use the **Groq API** to generate a short, editable clothing description and relevant suggested attributes, according to the model and image capabilities configured in the application.
+- Use the **Groq API** to generate a short, editable clothing description and other relevant attributes.
 - Add or edit item type, brand, size, color, and style.
 - Display the uploaded product photo in the owner's closet and in search results.
 - Edit or delete listings.
@@ -115,8 +113,6 @@ Search clothing shared by friends and groups the user is authorized to access. U
 - Style
 - Availability
 
-Optional approximate-location discovery may help users find people nearby in a future version. Live tracking is not required for the core borrowing experience.
-
 ### 5. Borrowing requests and availability calendar
 
 - Select a date range on an availability calendar.
@@ -125,7 +121,7 @@ Optional approximate-location discovery may help users find people nearby in a f
 - Separate sent, received, pending, approved, and declined requests.
 - Show approved dates as unavailable to other borrowers.
 - Prevent overlapping approved reservations for the same item.
-- Release reserved dates when an approved booking is canceled.
+- Release reserved dates when an approved booking is cancelled.
 - Track agreed return dates and borrowing status.
 
 Pending requests do not reserve an item. When one request is approved, overlapping pending requests must be rechecked and declined or asked to choose new dates.
@@ -168,7 +164,7 @@ Users can agree whether the borrower should wash an item before returning it or 
 | Layer | Technology | Role |
 |---|---|---|
 | Product and UI design | Figma | Plan and design the user experience |
-| Frontend | HTML, CSS, vanilla JavaScript | Build the interactive web application |
+| Frontend | HTML, CSS, JavaScript | Build the interactive web application |
 | Backend | Python, FastAPI | Implement server-side logic and REST endpoints |
 | AI | Groq API | Generate AI-assisted clothing descriptions using the configured model |
 | Authentication | Auth0 | Sign-in and identity management |
