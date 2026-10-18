@@ -39,7 +39,7 @@
   function mapBootstrap(b) {
     const users = {};
     b.users.forEach(u => {
-      users[S(u.id)] = { id:S(u.id), name:u.display_name, username:u.username, hue:HUES[u.id % HUES.length],
+      users[S(u.id)] = { id:S(u.id), name:u.display_name, username:u.username, hue:HUES[u.id % HUES.length], photo:(u.avatar_url ? (u.avatar_url.startsWith('http') ? u.avatar_url : API_URL + u.avatar_url) : null),
         stats:{ items:u.item_count, friends:u.friend_count, groups:u.group_count } };
     });
     const abs = url => (url ? (url.startsWith('http') ? url : API_URL + url) : null);
@@ -206,6 +206,26 @@
   function loadScript(src) {
     return new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = () => rej(new Error('Could not load ' + src)); document.head.appendChild(s); });
   }
+
+  /* ---------- profile photo: tap your avatar on your own profile ---------- */
+  const AVATAR = { path:'/api/users/me/avatar', method:'POST' }; // must match your backend (Step 0)
+  async function uploadAvatar(file) {
+    const fd = new FormData();
+    fd.append('file', await toJpegBlob(await readPhoto(file), 512), 'avatar.jpg');
+    await api(AVATAR.path, { method:AVATAR.method, form:fd });
+  }
+  document.addEventListener('click', e => {
+    if (!live || !e.target.closest('.profile .av')) return;
+    if (view.tab !== 'closet' || (view.user && view.user !== V())) return; // only your own profile
+    const inp = document.createElement('input');
+    inp.type = 'file'; inp.accept = 'image/png,image/jpeg,image/webp';
+    inp.onchange = async () => {
+      if (!inp.files[0]) return;
+      try { toast('Uploading photo...'); await uploadAvatar(inp.files[0]); await refresh(); toast('Profile photo updated'); }
+      catch (err) { toast(err.message === 'size' ? 'That photo is over 8 MB. Try a smaller one.' : err.message); }
+    };
+    inp.click();
+  });
 
   /* ---------- boot ---------- */
   (async () => {

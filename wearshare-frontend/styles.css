@@ -593,3 +593,4 @@ body[data-tab="messages"] .screen,body[data-tab="groups"] .screen{background:#e8
   .screen,.page{border-radius:25px 25px 0 0}
   .screen{border-radius:25px}
 }
+.profile .av { cursor: pointer; }
