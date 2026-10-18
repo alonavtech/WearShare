@@ -212,8 +212,8 @@
     try {
       const r = await fetch(API_URL + '/api/health'); if (!r.ok) throw new Error();
       const h = await r.json();
-      const names = { gemini:'Gemini', openai:'OpenAI', anthropic:'Claude', groq:'Groq', openrouter:'OpenRouter', ollama:'Ollama' };
-      window.CS_AI_NAME = names[(h.ai_provider || 'gemini').toLowerCase()] || 'AI';
+      const names = { groq:'Groq', openai:'OpenAI', anthropic:'Claude', groq:'Groq', openrouter:'OpenRouter', ollama:'Ollama' };
+      window.CS_AI_NAME = names[(h.ai_provider || 'groq').toLowerCase()] || 'AI';
     }
     catch (e) { toast('Server not reachable, so you are using offline demo data.'); return; }
 
