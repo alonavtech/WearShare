@@ -51,7 +51,7 @@ def update_me(body: UserUpdate, me: User = Depends(get_current_user), db: Sessio
 async def upload_avatar(file: UploadFile = File(...), me: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Profile photo: same checks as clothing photos (real image bytes, size limit), stored privately."""
     data, mime = await read_image(file)
-    me.avatar_url = await save_image(me.id, data, mime)
+    me.avatar_url = save_image(me.id, data, mime)
     db.commit()
     return me
 

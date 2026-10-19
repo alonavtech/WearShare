@@ -1,15 +1,17 @@
 # WearShare
 
-WearShare is an AI-powered clothing-sharing social media platform designed for close-knit college communities. Starting at the University of Florida, it helps roommates, dorm friends, sororities, and close friend groups discover each other's wardrobes, request clothing items for specific dates, and coordinate borrowing in one place.
+**Your friends' closets, one shared space.**
 
-Instead of buying a whole new outfit for one event, find it in a friend's closet!
+WearShare is an AI-powered clothing-sharing social platform built for trusted college communities. Starting at the University of Florida, it helps roommates, dorm friends, sororities, and close friend groups discover clothing their friends already own, request items for specific dates, and coordinate exchanges in one place.
 
-> **Our mission:** Make borrowing as convenient as online shopping, help students save money, strengthen real-life connections, and keep clothing in use for longer.
+Instead of buying an outfit for one event, find it in a friend's closet.
+
+> **Our mission:** Make borrowing as convenient as buying, help students save money, strengthen real-life connections, and keep clothing in use for longer.
 
 ---
 
 ## Contents
- 
+
 - [The Problem](#the-problem)
 - [Our Solution](#our-solution)
 - [Research and Validation](#research-and-validation)
@@ -29,39 +31,39 @@ Instead of buying a whole new outfit for one event, find it in a friend's closet
 
 ## The Problem
 
-Borrowing clothes from friends is already familiar, but the process is scattered across various direct messages and group chats. It can be difficult to find who owns a particular item, compare options, check availability, agree on dates, and remember to return what was borrowed. Buying something new can feel more convenient, even when a friend nearby already owns a similar item.
+Borrowing clothes from friends is already common, but the process is scattered across texts and group chats. It can be difficult to find who owns a particular item, compare options, check availability, agree on dates, and remember to return what was borrowed. Buying something new can feel easier, even when a friend nearby already owns a similar item.
 
-This contributes to unnecessary purchases and leaves wearable clothing unused, contributing to the growing issue of textile waste across the world.
+This convenience gap contributes to unnecessary purchases and leaves wearable clothing unused.
 
-In fact, The United Nations Environment Programme reports that approximately **92 million tonnes of textile waste** are generated globally each year. It also reports that clothing production doubled between 2000 and 2015 while the duration of garment use decreased by 36%.
+The United Nations Environment Programme reports that approximately **92 million tonnes of textile waste** are generated globally each year. It also reports that clothing production doubled between 2000 and 2015 while the duration of garment use decreased by 36%.
 
 **Source:** [United Nations Environment Programme — Unsustainable Fashion and Textiles](https://www.unep.org/en/news-and-stories/press-release/unsustainable-fashion-and-textiles-focus-international-day-zero)
 
 ## Our Solution
 
-WearShare makes clothing borrowing organized, searchable, and social. Users create digital closets, share selected items with trusted friends, discover clothing through filters, request items for specific dates, and coordinate exchanges through direct messages.
+WearShare makes clothing borrowing organized, searchable, and social. Users create digital closets, share selected items with trusted friends and groups, discover clothing through filters, request items for specific dates, and coordinate exchanges through direct messages.
 
-WearShare is different from a second-hand online marketplace as the focus is on **temporary borrowing between people who already know or trust each other**, rather than buying and selling.
+WearShare is different from a resale marketplace: the focus is on **temporary borrowing between people who already know or trust each other**, not buying and selling.
 
 ### Why WearShare?
 
-- **Convenience:** Search multiple friends' closets in one place instead of messaging friend after friend to see who has what you need.
-- **Affordability:** Avoid the expense of purchasing an outfit you'll only wear for a specific event.
-- **Trust:** Clothing sourced from approved friends and private groups.
-- **Reuse:** Help people get longer use out of clothing that already exists.
-- **Social connection:** Turn the familiar activity of borrowing into an easier way to connect with friends in real life.
+- **Convenience:** Search multiple friends' closets in one place instead of sending messages to several people.
+- **Affordability:** Borrow an outfit for a specific occasion rather than purchasing something you may rarely wear.
+- **Trust:** Share with approved friends and private groups rather than opening a public marketplace.
+- **Reuse:** Help more people get use out of clothing that already exists.
+- **Social connection:** Turn a familiar activity into an easier way to connect with friends in real life.
 
 ## Research and Validation
 
-Our initial Google Form received **50 responses**, and **99% of respondents said they would find the concept useful**. This is an encouraging early interest, however, not proof of long-term adoption and use. The next step is to measure whether people can effectively and easily upload items, borrow successfully, and return to use WearShare.
+Our initial Google Form received **50 responses**, and **99% of respondents said they would find the concept useful**. This is an encouraging early signal from our network, not proof of long-term adoption. The next step is to measure whether people upload items, borrow successfully, and return to use WearShare.
 
 Our research also informs the product's design:
 
 - **Textile waste:** UNEP estimates that 92 million tonnes of textile waste are generated globally each year.
-- **Borrowing behavior:** Research on borrowing and sharing suggests that many people already turn to friends and family to borrow items. WearShare aims to reduce the effort it takes to coordinate such.
-- **Trust and hygiene:** Concerns about cleanliness and the uncertainty of use products can make people reluctant to buy second-hand or use circular fashion services. WearShare focuses on ensuring the user is within trusted communities and lets borrowers and owners discuss washing expectations.
-- **Enjoyment and discovery:** A social, searchable closet can make finding an outfit feel more engaging, almost like a treasure hunt, rather than a chore.
-- **Student budgets:** College students often need different outfits for formals, parties, interviews, game days, and themed events while managing limited funds.
+- **Borrowing behavior:** Research on borrowing and sharing suggests that people already turn to friends and family to borrow items. WearShare aims to reduce the coordination effort.
+- **Trust and hygiene:** Concerns about cleanliness and the uncertainty of used products can make people reluctant to use circular fashion services. WearShare focuses on trusted communities and lets borrowers and owners discuss washing expectations.
+- **Enjoyment and discovery:** A social, searchable closet can make finding an outfit feel more engaging than treating sustainable choices as a chore.
+- **Student budgets:** College students often need different outfits for formals, parties, interviews, game days, and themed events while managing limited budgets.
 
 ### Research sources
 
@@ -77,14 +79,14 @@ We distinguish published research from our own survey and from future impact goa
 ### 1. Profiles and authentication
 
 - Create a profile with a display name, username, and profile photo.
-- Sign in securely using Auth0.
-- Search for users and send or accept to friend requests.
+- Sign in using Auth0.
+- Search for users and send or respond to friend requests.
 - View friends' closets when permission is granted.
 
 ### 2. AI-assisted digital closets
 
 - Upload a photo for each clothing item.
-- Use the **Groq API** to generate a short, editable clothing description and other relevant attributes.
+- Use the **Groq API** to generate a short, editable clothing description and relevant suggested attributes, according to the model and image capabilities configured in the application.
 - Add or edit item type, brand, size, color, and style.
 - Display the uploaded product photo in the owner's closet and in search results.
 - Edit or delete listings.
@@ -113,6 +115,8 @@ Search clothing shared by friends and groups the user is authorized to access. U
 - Style
 - Availability
 
+Optional approximate-location discovery may help users find people nearby in a future version. Live tracking is not required for the core borrowing experience.
+
 ### 5. Borrowing requests and availability calendar
 
 - Select a date range on an availability calendar.
@@ -121,7 +125,7 @@ Search clothing shared by friends and groups the user is authorized to access. U
 - Separate sent, received, pending, approved, and declined requests.
 - Show approved dates as unavailable to other borrowers.
 - Prevent overlapping approved reservations for the same item.
-- Release reserved dates when an approved booking is cancelled.
+- Release reserved dates when an approved booking is canceled.
 - Track agreed return dates and borrowing status.
 
 Pending requests do not reserve an item. When one request is approved, overlapping pending requests must be rechecked and declined or asked to choose new dates.
@@ -164,13 +168,12 @@ Users can agree whether the borrower should wash an item before returning it or 
 | Layer | Technology | Role |
 |---|---|---|
 | Product and UI design | Figma | Plan and design the user experience |
-| Frontend | HTML, CSS, JavaScript | Build the interactive web application |
+| Frontend | React, HTML, CSS, JavaScript | Build the interactive web application |
 | Backend | Python, FastAPI | Implement server-side logic and REST endpoints |
 | AI | Groq API | Generate AI-assisted clothing descriptions using the configured model |
 | Authentication | Auth0 | Sign-in and identity management |
 | Database | Tiger Data / Tiger Cloud PostgreSQL | Store relational application data |
-| Hosting | Vercel | Serve the frontend and run FastAPI as serverless functions |
-| Image storage | Private Vercel Blob | Persist and securely serve user-uploaded photos |
+| Hosting | Vultr | Host the application backend or other deployed services |
 | API communication | HTTP / REST | Connect frontend and backend |
 | Version control | Git and GitHub | Track and collaborate on code |
 
@@ -180,7 +183,7 @@ The exact deployment configuration, model name, image storage provider, and envi
 
 ```text
                    WearShare Web App
-                    HTML/CSS/JS
+                  React + HTML/CSS/JS
                            |
                            | REST requests
                            v
@@ -197,17 +200,15 @@ The exact deployment configuration, model name, image storage provider, and envi
                          sharing, requests,
                          reservations, DMs
 
-                   Vercel: frontend + FastAPI hosting
-                   Vercel Blob: private user photos
+                   Vultr: application hosting
 ```
 
-- **JavaScript frontend:** Renders profiles, closets, search, groups, calendars, requests, and messages.
+- **React frontend:** Renders profiles, closets, search, groups, calendars, requests, and messages.
 - **FastAPI backend:** Exposes endpoints, validates input, checks permissions, and enforces borrowing rules.
 - **Groq API:** Supplies AI-generated descriptions through a backend integration. The selected model must support the inputs the application sends.
 - **Auth0:** Verifies user identity. The backend must still authorize access to each private resource.
 - **Tiger Data:** Stores structured records such as users, items, friendships, group membership, requests, and messages.
-- **Vercel:** Serves the frontend and runs the FastAPI application.
-- **Vercel Blob:** Stores private user-uploaded photos durably outside the function filesystem.
+- **Vultr:** Provides cloud infrastructure for deploying the application services.
 
 Images may be stored in an object-storage service rather than directly in PostgreSQL. If image storage is configured separately, the database should keep the image reference and metadata while access controls protect the actual file.
 
@@ -218,11 +219,12 @@ These instructions are a starting point. Use the actual file names, scripts, and
 ### Prerequisites
 
 - Python 3.11+
+- Node.js and npm
 - Git
-- A Vercel account to deploy
-- Tiger Data PostgreSQL connection details and a private Vercel Blob store for production
-- Auth0 application credentials for production sign-in
-- A Groq API key for AI-generated descriptions (optional)
+- A Groq API key
+- Auth0 application credentials for production-style sign-in
+- Tiger Data connection details for the hosted PostgreSQL database
+- A Vultr account if deploying to Vultr
 
 ### 1. Clone the repository
 
@@ -303,14 +305,14 @@ If your app uses a different module path, adjust the command accordingly. Once t
 
 ### 5. Start the frontend
 
-In a second terminal from the repository root, serve the static frontend from `wearshare-frontend` using VS Code Live Server or:
+From the frontend directory, install packages and start the development server using the scripts in `package.json`. For a typical React/Vite project:
 
 ```bash
-cd wearshare-frontend
-python -m http.server 5500
+npm install
+npm run dev
 ```
 
-Open `http://localhost:5500`. The frontend points to the local FastAPI server on port 8000.
+Open the local URL printed by the development server. Configure the frontend's API base URL to point to the local FastAPI server.
 
 ### 6. Configure Auth0
 
@@ -326,41 +328,38 @@ Frontend configuration may include public Auth0 domain, client ID, and audience 
 
 Create or select a PostgreSQL database in Tiger Data/Tiger Cloud, then use its supplied connection string in the backend configuration. Ensure the PostgreSQL driver, schema, migrations, and connection settings are compatible with the project.
 
-For local development, leave `DATABASE_URL` empty to use SQLite. Production must use hosted PostgreSQL; SQLite files are not persistent across Vercel function invocations.
+For local development, a local database may be supported if the code has been configured for one. Do not assume SQLite fallback exists unless it is implemented in the repository.
 
-### 8. Deploy with Vercel
+### 8. Deploy with Vultr
 
-The repository is configured as one Vercel project: Vercel serves the static frontend and runs FastAPI as serverless functions. A hosted PostgreSQL database and private Blob store are required for durable production data and photos.
+A typical deployment plan is:
 
-1. Push the project to GitHub, then import the repository into Vercel. Use the repository root as the project root.
-2. In Vercel **Storage**, create a **private** Blob store and connect it to the project for Production (and Preview/Development if needed). Vercel supplies Blob access to the Python SDK.
-3. Add the production environment variables listed below in **Project Settings → Environment Variables**. Do not commit actual credentials.
-4. In Auth0, add the deployed `https://<your-project>.vercel.app` origin to the SPA's allowed callback, logout, and web-origin URLs. Add any custom domain after connecting it.
-5. Deploy from Vercel or push to the connected GitHub branch. Check `https://<your-project>.vercel.app/api/health`, then test sign-in, profile creation, private image upload/display, groups, borrowing, and DMs.
+1. Provision a Vultr server or supported hosting environment.
+2. Install the required Python runtime and application dependencies.
+3. Configure environment variables securely on the server.
+4. Run FastAPI behind a production ASGI server and HTTPS reverse proxy.
+5. Configure the frontend's production API URL and deploy the built frontend.
+6. Restrict database access and configure Auth0 allowed URLs for the production domain.
+7. Test sign-in, uploads, item visibility, AI descriptions, and concurrent reservation requests in the deployed environment.
 
-The first production request initializes the database schema. Vercel deployments are immutable, so the app uses private Vercel Blob rather than local disk for uploaded photos. Existing local SQLite data and local uploads are not automatically migrated.
+Deployment commands depend on the Vultr product and the repository's hosting setup. Do not expose the development server directly as a production deployment.
 
 ## Environment Variables
 
-Set these in Vercel. `BLOB_STORE_ID` and the Vercel OIDC token are supplied automatically when the private Blob store is connected to the project. For local development, keep `IMAGE_STORAGE=local`.
+Variable names below are illustrative. Confirm the exact names used by the code before running the application.
 
 | Variable | Purpose |
 |---|---|
-| `APP_ENV` | Set to `production`; enables production safety checks |
-| `IMAGE_STORAGE` | Set to `vercel_blob` for durable private photo storage |
-| `DATABASE_URL` | Tiger Data PostgreSQL connection string |
-| `SECRET_KEY` | Random secret of at least 24 characters for signed private-image URLs |
+| `GROQ_API_KEY` | Backend access to the Groq API |
 | `AUTH0_DOMAIN` | Auth0 tenant/domain |
-| `AUTH0_AUDIENCE` | Identifier for the protected API |
-| `CORS_ORIGINS` | Comma-separated deployed frontend origins; use the Vercel production URL |
-| `GROQ_API_KEY` | Optional backend key for AI-generated clothing descriptions |
-| `APP_TIMEZONE` | Optional app timezone; defaults to `America/New_York` |
+| `AUTH0_AUDIENCE` | Identifier for the protected backend API |
+| `DATABASE_URL` | Tiger Data PostgreSQL connection string |
+| `VITE_API_URL` | Frontend API base URL, if using Vite |
+| `VITE_AUTH0_DOMAIN` | Public Auth0 domain configuration, if using Vite |
+| `VITE_AUTH0_CLIENT_ID` | Public Auth0 application client ID, if using Vite |
+| `VITE_AUTH0_AUDIENCE` | Public API audience configuration, if using Vite |
 
-Do not add database, Blob, or Groq secrets to frontend files. Auth0's SPA client ID in `config.js` is public; its allowed URLs and API audience must match the deployed app.
-
-## Progressive Web App
-
-WearShare includes a web app manifest, app icons, a service worker, and an install button where the browser supports installation. On iPhone/iPad, open the site in Safari, tap **Share → Add to Home Screen**. On Android, use the browser's **Install app** or **Add to Home screen** prompt. The service worker caches the application shell only; sign-in, photos, and app data still require a network connection.
+Only add variables that your code actually reads. Keep secrets on the backend and use your deployment platform's secure environment configuration for production.
 
 ## Core API Areas
 
@@ -449,15 +448,16 @@ Before presenting or deploying, verify:
 
 WearShare aims to help clothing stay in use for longer by making borrowing within existing communities easier.
 
-Use observed, date-stamped product data for resume metrics—do not report targets or survey interest as real user impact. The authenticated `/api/impact` endpoint exposes aggregate counts for:
+We plan to track:
 
 - Items uploaded
 - Active users and sharing groups
 - Borrowing requests submitted and approved
-- Completed exchanges
-- Daily activity-event counts for the most recent 14 days (when Tiger Data event storage is available)
+- Completed exchanges and repeat borrowing
+- Return completion and overdue rates, if implemented
+- Users who report that borrowing helped them avoid a purchase
 
-For a resume, report the measurement period and define rates consistently—for example, **request approval rate = approved requests / submitted requests**, **exchange completion rate = returned requests / approved requests**, and **repeat-borrower rate = borrowers with 2+ requests / borrowers with 1+ requests**. Measure reported purchases avoided with an optional user survey and label it self-reported. Do not convert borrowing counts into kilograms of waste or emissions without a transparent, defensible method.
+We will separate observed platform activity from self-reported behavior. We will not claim a precise amount of textile waste or emissions avoided without a transparent, defensible calculation method.
 
 ## Roadmap
 

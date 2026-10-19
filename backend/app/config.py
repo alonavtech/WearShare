@@ -1,5 +1,4 @@
 from functools import lru_cache
-from typing import Literal
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -11,8 +10,6 @@ class Settings(BaseSettings):
     groq_model: str = "qwen/qwen3.8-27b"
 
     database_url: str = ""
-    image_storage: Literal["local", "vercel_blob"] = "local"
-    blob_store_id: str = ""
 
     auth0_domain: str = ""
     auth0_audience: str = ""
@@ -22,7 +19,7 @@ class Settings(BaseSettings):
     app_timezone: str = "America/New_York"
     upload_dir: str = "uploads"
     max_upload_mb: int = 8
-    app_env: str = "development"
+    app_env: str = "development"  # set to "production" on the Vultr server
 
     def validate_production(self) -> None:
         """Refuse to start in production with unsafe settings (e.g. dev login left on)."""
@@ -34,11 +31,7 @@ class Settings(BaseSettings):
         if self.secret_key.startswith(("dev-secret", "change-me")) or len(self.secret_key) < 24:
             problems.append("SECRET_KEY must be a long random string")
         if not self.database_url:
-            problems.append("DATABASE_URL must point to a hosted PostgreSQL database")
-        if self.image_storage != "vercel_blob":
-            problems.append("IMAGE_STORAGE must be set to vercel_blob for persistent production photo storage")
-        elif not self.blob_store_id:
-            problems.append("Connect a Vercel Blob store so BLOB_STORE_ID is available")
+            problems.append("DATABASE_URL must point to Tiger Data")
         if problems:
             raise RuntimeError("Unsafe production configuration: " + "; ".join(problems))
 
