@@ -1,4 +1,4 @@
-const CACHE_NAME = "wearshare-shell-v1";
+const CACHE_NAME = "wearshare-shell-v2";
 const APP_SHELL = [
   "/",
   "/index.html",
@@ -44,13 +44,19 @@ self.addEventListener("fetch", event => {
     return;
   }
 
-  event.respondWith(
-    caches.match(request).then(cached => cached || fetch(request).then(response => {
+  event.respondWith((async () => {
+    const cached = await caches.match(request);
+    if (request.destination !== "script" && request.destination !== "style" && cached) return cached;
+
+    try {
+      const response = await fetch(request);
       if (response.ok && response.type === "basic") {
-        const copy = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(request, copy));
+        await caches.open(CACHE_NAME).then(cache => cache.put(request, response.clone()));
       }
       return response;
-    }))
-  );
+    } catch (error) {
+      if (cached) return cached;
+      throw error;
+    }
+  })());
 });

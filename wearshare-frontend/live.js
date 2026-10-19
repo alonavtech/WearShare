@@ -13,6 +13,7 @@
   let devUser = store.get('cs-dev-user') || 'me';
   let auth0Client = null;
   let live = false;
+  let backendUnavailable = false;
   const S = x => (x == null ? null : String(x));
   const emptyDB = () => ({ signedIn:false, viewer:null, users:{}, friendships:[], groups:[], items:[], requests:[], convs:[] });
 
@@ -152,7 +153,20 @@
 
   /* Capture-phase listeners run before app.js's demo handlers and stop them. */
   document.addEventListener('click', e => {
-    if (!live) return;
+    if (backendUnavailable) {
+      if (e.target.closest('[data-backend-retry]')) location.reload();
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      return;
+    }
+    if (!live) {
+      if (e.target.closest('[data-act]')) {
+        e.stopImmediatePropagation();
+        e.preventDefault();
+        toast('Connecting to WearShare…');
+      }
+      return;
+    }
     const b = e.target.closest('[data-act]'); if (!b || b.disabled) return;
     const fn = ACTS[b.dataset.act]; if (!fn) return;
     e.stopPropagation(); e.preventDefault();
@@ -235,7 +249,16 @@
       const names = { groq:'Groq', openai:'OpenAI', anthropic:'Claude', groq:'Groq', openrouter:'OpenRouter', ollama:'Ollama' };
       window.CS_AI_NAME = names[(h.ai_provider || 'groq').toLowerCase()] || 'AI';
     }
-    catch (e) { toast('Server not reachable, so you are using offline demo data.'); return; }
+    catch (e) {
+      backendUnavailable = true;
+      window.CS_BACKEND_ERROR = true;
+      $('#main').innerHTML = `<section role="alert" style="min-height:65vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:24px">
+        <h1 class="h1">WearShare is temporarily unavailable</h1>
+        <p class="b muted" style="margin:12px 0 20px">We couldn't connect to the app server. Your account and data are safe. Please try again shortly.</p>
+        <button class="btn primary" type="button" data-backend-retry>Try again</button>
+      </section>`;
+      return;
+    }
 
     live = true;
     window.CS_LIVE = true;
