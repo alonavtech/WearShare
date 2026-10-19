@@ -1,10 +1,11 @@
-"""Private image storage. Local disk for development; swap for S3/Vultr Object Storage later.
+"""Private image storage. Local disk for development and private Vercel Blob in production.
 
 Images are never public: the API hands out short-lived signed URLs, and only users who
 are allowed to see the item get one.
 """
 import hashlib
 import hmac
+import mimetypes
 import time
 import uuid
 from pathlib import Path
@@ -14,6 +15,10 @@ from .config import get_settings
 settings = get_settings()
 ROOT = Path(settings.upload_dir)
 ALLOWED = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp"}
+
+
+def _blob_path(owner_id: int, mime: str) -> str:
+    return f"{owner_id}/{uuid.uuid4().hex}.{ALLOWED[mime]}"
 
 
 def sniff_image_type(data: bytes) -> str | None:
@@ -27,12 +32,34 @@ def sniff_image_type(data: bytes) -> str | None:
     return None
 
 
-def save_image(owner_id: int, data: bytes, mime: str) -> str:
-    key = f"{owner_id}/{uuid.uuid4().hex}.{ALLOWED[mime]}"
+async def save_image(owner_id: int, data: bytes, mime: str) -> str:
+    key = _blob_path(owner_id, mime)
+    if settings.image_storage == "vercel_blob":
+        from vercel import blob
+
+        uploaded = await blob.put_blob(key, data, access="private", content_type=mime)
+        return uploaded.pathname
+
     path = ROOT / key
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(data)
     return key
+
+
+async def load_image(key: str) -> tuple[bytes, str] | None:
+    if settings.image_storage == "vercel_blob":
+        from vercel import blob
+
+        try:
+            result = await blob.get_blob(key, access="private")
+        except blob.BlobNotFoundError:
+            return None
+        return result.body, result.metadata.content_type
+
+    path = image_path(key)
+    if not path:
+        return None
+    return path.read_bytes(), mimetypes.guess_type(path.name)[0] or "application/octet-stream"
 
 
 def image_path(key: str) -> Path | None:

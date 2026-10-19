@@ -1,0 +1,26 @@
+{
+  "id": "/",
+  "name": "WearShare",
+  "short_name": "WearShare",
+  "description": "Share clothes with friends and trusted communities.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4a7c0",
+  "theme_color": "#f4a7c0",
+  "icons": [
+    {
+      "src": "/icons/wearshare-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/wearshare-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

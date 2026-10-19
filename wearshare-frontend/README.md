@@ -1,18 +1,7 @@
-# WearShare – Frontend (mobile app)
+# WearShare Frontend
 
-## Chạy thử (không cần backend)
-1. Giải nén thư mục.
-2. Mở `index.html` (double-click, hoặc VS Code → chuột phải → **Open with Live Server**).
-3. Bấm đăng nhập bất kỳ → vào app ở **demo mode** (dữ liệu mẫu, lưu tạm trong trình duyệt).
-4. Ô **"Demo · viewing as"** ở trên cùng để đổi sang user khác (vd: Maya) → thử gửi/duyệt request.
+This static frontend is served with the FastAPI backend on Vercel. It also includes the PWA manifest, service worker, and install icons.
 
-Trên máy tính app hiện trong khung điện thoại; trên điện thoại thật thì full màn hình.
+For local development, run FastAPI from `backend` with `uvicorn app.main:app --reload`, then serve this folder with VS Code Live Server or `python -m http.server 5500`. The frontend uses the local API at `http://localhost:8000`.
 
-## Ghép với backend sau này
-Chép 6 file này đè vào `closetshare-full/frontend/`, rồi trong `config.js` sửa:
-```js
-window.CLOSETSHARE_API = 'http://localhost:8000';
-```
-Chạy backend (`uvicorn app.main:app --reload`) rồi mở lại bằng Live Server.
-
-Files: index.html · styles.css · app.js (logic) · wearshare.js (giao diện) · live.js (kết nối backend) · config.js
+For deployment setup, environment variables, and mobile installation instructions, see the repository [README](../README.md).
