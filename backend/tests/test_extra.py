@@ -90,6 +90,12 @@ def test_frontend_and_pwa_assets_are_served(client):
     assert client.get("/icons/wearshare-192.png").headers["content-type"] == "image/png"
 
 
+def test_vercel_entrypoint_exports_fastapi_app():
+    from main import app as vercel_app
+
+    assert vercel_app.title == "WearShare API"
+
+
 def test_vercel_blob_photo_upload_and_signed_read(client, monkeypatch):
     from vercel import blob
 
