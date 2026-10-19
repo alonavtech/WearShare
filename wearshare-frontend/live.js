@@ -252,9 +252,15 @@
     catch (e) {
       backendUnavailable = true;
       window.CS_BACKEND_ERROR = true;
+      DB = emptyDB();
+      DB.signedIn = false;
+      window.CS_HIDE_VIEWER = true;
+      render();
+      $('#nav').hidden = true;
+      $('#viewerWrap').hidden = true;
       $('#main').innerHTML = `<section role="alert" style="min-height:65vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:24px">
-        <h1 class="h1">WearShare is temporarily unavailable</h1>
-        <p class="b muted" style="margin:12px 0 20px">We couldn't connect to the app server. Your account and data are safe. Please try again shortly.</p>
+        <h1 class="h1">Sign-in is temporarily unavailable</h1>
+        <p class="b muted" style="margin:12px 0 20px">WearShare couldn't reach its app server, so sign-in and account data aren't available right now. No demo accounts are being shown. Please try again shortly.</p>
         <button class="btn primary" type="button" data-backend-retry>Try again</button>
       </section>`;
       return;
